@@ -66,27 +66,43 @@ class BuildSystem:
         for obj in objects:
             print(f" * {obj['name']}")
 
-    def get_task(self, task_name, get_task_for_build=False):
+    def get_task(self, task_name, just_dependencies=False):
         """
         получить имя задачи и ее зависимости
         :param task_name: имя запрашиваемой задачи
-        :param get_task_for_build: флаг для запроса списка задач в порядке выполнения для вывода в информации о билде
+        :param just_dependencies: флаг для возврата только списка зависимостей и самой задачи
+        :return: список зависимостей задачи, который включает и саму задачу в следующем порядке - [зависимость, задача]
         """
         for task in self.tasks:
             try:
                 if task_name in task['name']:
-                    if get_task_for_build:
-                        task_list = list(task['dependencies'])
-                        task_list.append(task_name)
-                        return task_list
+
+                    if just_dependencies:
+                        return list(task['dependencies'])
+
                     print(f"Task info:")
                     print(f" * name: {task_name}")
                     print(f" * dependencies: {', '.join(task['dependencies'])}")
                     return
+
             except KeyError as e:
                 print(f"Ошибка обработки данные в файлах YAML. В файле нет данных по ключу {e} у задачи '{task_name}'")
                 exit(1)
         print(f"Задача '{task_name}' не существует")
+
+    def __get_build_tasks_list(self, tasks, build_tasks_list):
+        """ получаем список задач и их зависимостей для конкретного билда """
+
+        if len(tasks) == 0:     # базовый случай рекурсии
+            return
+
+        for task_name in tasks:
+            task_dependencies = self.get_task(task_name, True)
+
+            self.__get_build_tasks_list(task_dependencies, build_tasks_list)
+
+            build_tasks_list.append(task_name)
+        return build_tasks_list
 
     def get_build(self, build_name):
         """ получить билд и его задачи """
@@ -95,9 +111,7 @@ class BuildSystem:
                 if build_name in build['name']:
                     print(f"Build info:")
                     print(f" * name: {build_name}")
-                    task_list = []
-                    for task_name in build['tasks']:
-                        task_list += self.get_task(task_name, True)
+                    task_list = self.__get_build_tasks_list(build['tasks'], [])
                     print(f" * tasks: {', '.join(task_list)}")
                     return
             except KeyError as e:
