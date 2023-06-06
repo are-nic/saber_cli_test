@@ -34,11 +34,11 @@ def test_get_task(build_system, capsys):
 
 
 def test_get_build(build_system, capsys):
-    build_system.get_build('audience_stand')
+    build_system.get_build('approach_important')
     captured = capsys.readouterr()
     assert "Build info:" in captured.out
-    assert "* name: audience_stand" in captured.out
-    assert "* tasks: enable_fuchsia_fairies, read_blue_witches, upgrade_olive_gnomes" in captured.out
+    assert "* name: approach_important" in captured.out
+    assert "* tasks: read_purple_centaurs, design_black_centaurs, upgrade_blue_centaurs, train_silver_centaurs, map_gray_centaurs" in captured.out
 
     build_system.get_build('nonexistent_build')
     captured = capsys.readouterr()
