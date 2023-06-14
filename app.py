@@ -57,7 +57,7 @@ class BuildSystem:
         вывести список имен всех задач или билдов
         :param type_data: тип сущности для вывода - билд или задача ("build" or "task")
         """
-        if type_data == 'tasks':
+        if type_data == 'tasks':        # если нужно вывести задачи
             objects = self.tasks
         else:
             objects = self.builds
@@ -71,11 +71,11 @@ class BuildSystem:
         получить имя задачи и ее зависимости
         :param task_name: имя запрашиваемой задачи
         :param just_dependencies: флаг для возврата только списка зависимостей и самой задачи
-        :return: список зависимостей задачи, который включает и саму задачу в следующем порядке - [зависимость, задача]
+        :return: список зависимостей задачи
         """
         for task in self.tasks:
             try:
-                if task_name in task['name']:
+                if task_name == task['name']:
 
                     if just_dependencies:
                         return list(task['dependencies'])
@@ -91,9 +91,14 @@ class BuildSystem:
         print(f"Задача '{task_name}' не существует")
 
     def __get_build_tasks_list(self, tasks, build_tasks_list):
-        """ получаем список задач и их зависимостей для конкретного билда """
+        """
+        получаем список задач и их зависимостей для конкретного билда
+        :param tasks: список задач
+        :param build_tasks_list: список для сбора всех задач и подзадач билда. Изначально пустой
+        :return: список всех задач и подзадач билда.
+        """
 
-        if len(tasks) == 0:     # базовый случай рекурсии
+        if len(tasks) == 0:
             return
 
         for task_name in tasks:
@@ -108,7 +113,7 @@ class BuildSystem:
         """ получить билд и его задачи """
         for build in self.builds:
             try:
-                if build_name in build['name']:
+                if build_name == build['name']:
                     print(f"Build info:")
                     print(f" * name: {build_name}")
                     task_list = self.__get_build_tasks_list(build['tasks'], [])
